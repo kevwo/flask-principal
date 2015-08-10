@@ -93,6 +93,9 @@ UserNeed.__doc__ = """A need with the method preset to `"id"`."""
 RoleNeed = partial(Need, 'role')
 RoleNeed.__doc__ = """A need with the method preset to `"role"`."""
 
+PermissionNeed = partial(Need, 'permission')
+PermissionNeed.__doc__ = """A need with the method preset to `"permission"`."""
+
 
 UserGroupNeed = partial(Need, 'group')
 UserGroupNeed.__doc__ = """A need with the method preset to `"group"`."""
@@ -179,9 +182,10 @@ class IdentityContext(object):
     flow is continued (context manager) or the function is executed (decorator).
     """
 
-    def __init__(self, permission, http_exception=None):
+    def __init__(self, permission, http_exception=None, error_message=None):
         self.permission = permission
         self.http_exception = http_exception
+        self.error_message = error_message
         """The permission of this principal
         """
 
@@ -207,9 +211,10 @@ class IdentityContext(object):
     def __enter__(self):
         # check the permission here
         if not self.can():
+            message = self.error_message if self.error_message else self.permission
             if self.http_exception:
-                abort(self.http_exception, self.permission)
-            raise PermissionDenied(self.permission)
+                abort(self.http_exception, message)
+            raise PermissionDenied(message)
 
     def __exit__(self, *args):
         return False
@@ -261,7 +266,7 @@ class Permission(object):
             self.__class__.__name__, self.needs, self.excludes
         )
 
-    def require(self, http_exception=None):
+    def require(self, http_exception=None, error_message=None):
         """Create a principal for this permission.
 
         The principal may be used as a context manager, or a decroator.
@@ -272,10 +277,12 @@ class Permission(object):
         requirements.
 
         :param http_exception: the HTTP exception code (403, 401 etc)
-        """
-        return IdentityContext(self, http_exception)
 
-    def test(self, http_exception=None):
+        :param error_message: the message to include in the HTTP response body
+        """
+        return IdentityContext(self, http_exception, error_message)
+
+    def test(self, http_exception=None, error_message=None):
         """
         Checks if permission available and raises relevant exception
         if not. This is useful if you just want to check permission
@@ -287,7 +294,7 @@ class Permission(object):
                 pass
         """
 
-        with self.require(http_exception):
+        with self.require(http_exception, error_message):
             pass
 
     def reverse(self):
