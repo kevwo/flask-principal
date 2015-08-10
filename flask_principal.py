@@ -94,6 +94,10 @@ RoleNeed = partial(Need, 'role')
 RoleNeed.__doc__ = """A need with the method preset to `"role"`."""
 
 
+UserGroupNeed = partial(Need, 'group')
+UserGroupNeed.__doc__ = """A need with the method preset to `"group"`."""
+
+
 TypeNeed = partial(Need, 'type')
 TypeNeed.__doc__ = """A need with the method preset to `"type"`."""
 
