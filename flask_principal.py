@@ -24,6 +24,12 @@ from collections import namedtuple
 from flask import g, session, current_app, abort, request
 from flask.signals import Namespace
 
+# allow user to plugin the aborter from flask restful
+try:
+    from flask_restful import abort as restful_abort
+except ImportError:
+    restful_abort = None
+
 PY3 = sys.version_info[0] == 3
 
 signals = Namespace()
@@ -213,7 +219,10 @@ class IdentityContext(object):
         if not self.can():
             message = self.error_message if self.error_message else self.permission
             if self.http_exception:
-                abort(self.http_exception, message)
+                if abort is restful_abort:
+                    abort(self.http_exception, message=message)
+                else:
+                    abort(self.http_exception, message)
             raise PermissionDenied(message)
 
     def __exit__(self, *args):
