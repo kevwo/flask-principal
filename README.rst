@@ -1,10 +1,10 @@
 Flask-Principal
 ===============
 
-.. image:: https://secure.travis-ci.org/mattupstate/flask-principal.png?branch=develop
+This fork adds the following functionality (Forked from https://github.com/mattupstate/flask-principal)
 
-Identity management for Flask applications. This extension was originally 
-written by Ali Afshar. Thanks to him for his great work. This is the new and
-official repository for this project.
+1.) Ability to plug in a custom aborter function when using flask_restful
 
-Documentation: http://packages.python.org/Flask-Principal/
+2.) UserGroup support
+
+3.) Custom error messages for permission failures
